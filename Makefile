@@ -1,4 +1,4 @@
-all: ingest train score deploy diagnose
+all: ingest train score deploy diagnose report 
 	
 ingest:
 	python ingestion.py
@@ -14,5 +14,20 @@ deploy:
 
 diagnose:
 	python diagnostics.py
+
+report:
+	python reporting.py
+
+fullprocess:
+	python fullprocess.py
+
+wsgi:
+	python wsgi.py
+
+apicall:
+	python apicalls.py
+
+app:
+	python app.py
 
 
