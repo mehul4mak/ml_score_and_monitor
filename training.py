@@ -1,3 +1,4 @@
+from re import S
 from flask import Flask, session, jsonify, request
 import pandas as pd
 import numpy as np
@@ -15,12 +16,25 @@ with open("config.json", "r") as f:
 dataset_csv_path = os.path.join(config["output_folder_path"])
 model_path = os.path.join(config["output_model_path"])
 
+DROP_COLUMNS = ["corporation"]
+TARGET = "exited"
+
+df = pd.read_csv(os.path.join(dataset_csv_path, "finaldata.csv"))
+
+
+def prepare_data(data: pd.DataFrame):
+    data.drop(DROP_COLUMNS, axis=1, inplace=True)
+    X = data.drop(TARGET, axis=1).values
+    y = data[TARGET].values
+
+    return X, y
+
 
 #################Function for training the model
-def train_model():
+def train_model(X, y):
 
     # use this logistic regression for training
-    LogisticRegression(
+    model = LogisticRegression(
         C=1.0,
         class_weight=None,
         dual=False,
@@ -28,7 +42,7 @@ def train_model():
         intercept_scaling=1,
         l1_ratio=None,
         max_iter=100,
-        multi_class="warn",
+        multi_class="auto",
         n_jobs=None,
         penalty="l2",
         random_state=0,
@@ -39,5 +53,18 @@ def train_model():
     )
 
     # fit the logistic regression to your data
+    model.fit(X, y)
 
     # write the trained model to your workspace in a file called trainedmodel.pkl
+    with open(os.path.join(model_path, "trainedmodel.pkl"), "wb") as f:
+        pickle.dump(model, f)
+
+
+def main() -> None:
+    """main"""
+    X, y = prepare_data(df)
+    train_model(X, y)
+
+
+if __name__ == "__main__":
+    main()
