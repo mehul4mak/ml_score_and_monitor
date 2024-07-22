@@ -1,20 +1,24 @@
-import pandas as pd
-import numpy as np
-import os
+"""Ingestion Script
+"""
+
 import json
+import os
 from datetime import datetime
 
+import pandas as pd
 
-#############Load config.json and get input and output paths
-with open("config.json", "r") as f:
-    config = json.load(f)
+# Load config.json and get input and output paths
+with open("config.json", "r", encoding="utf-8") as config_file:
+    config = json.load(config_file)
 
 input_folder_path = config["input_folder_path"]
 output_folder_path = config["output_folder_path"]
 
 
-#############Function for data ingestion
-def merge_multiple_dataframe():
+# Function for data ingestion
+def merge_multiple_dataframe() -> None:
+    """Ingestion data from various csv to final csv and save it to disk"""
+
     # check for datasets, compile them together, and write to an output file
     files = os.listdir(input_folder_path)
     print(files)
@@ -36,13 +40,12 @@ def merge_multiple_dataframe():
         merged_df = pd.concat((merged_df, temp_df), axis=0)
         allrecords.append(records)
 
-    # print(merged_df.shape)
     merged_df.drop_duplicates(inplace=True)
-    # print(merged_df.shape)
-    # os.mkdir(output_folder_path) if not os.path.exists(output_folder_path) else None
 
     os.makedirs(output_folder_path, exist_ok=True)
-    merged_df.to_csv(os.path.join(output_folder_path, "finaldata.csv"), index=False)
+    merged_df.to_csv(
+        os.path.join(output_folder_path, "finaldata.csv"), index=False
+    )
 
     # Open the file in write mode
     with open("ingestedfiles.txt", "w", encoding="utf-8") as file:
@@ -51,12 +54,12 @@ def merge_multiple_dataframe():
             # Convert the item to a string and write it to the file
             file.write(", ".join(map(str, records)) + "\n")
 
-    print(f"Data written!")
+    print("Data written!")
 
 
 def main() -> None:
     """Main"""
-    merge_multiple_dataframe()
+    # merge_multiple_dataframe()
 
 
 if __name__ == "__main__":
