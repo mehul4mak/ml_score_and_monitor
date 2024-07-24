@@ -19,12 +19,34 @@ output_folder_path = config["output_folder_path"]
 def merge_multiple_dataframe() -> None:
     """Ingestion data from various csv to final csv and save it to disk"""
 
-    # check for datasets, compile them together, and write to an output file
     files = os.listdir(input_folder_path)
-    print(files)
+    # if files == []:
+    #     print("No Files to ingest!")
+    #     return
+    try:
+        with open(
+            os.path.join("ingestedfiles.txt"), "r+", encoding="utf-8"
+        ) as file:
+            ingestedfiles = file.readlines()
+        ingestedfiles = [record.split(", ")[1] for record in ingestedfiles]
+        files = [file for file in files if file not in ingestedfiles]
+
+    except FileNotFoundError as e:
+        print(e)
+
+    if files == []:
+        print("No New Files to ingest!")
+        return
+    # check for datasets, compile them together, and write to an output file
     allrecords = []
 
     merged_df = pd.DataFrame()
+    # if os.path.exists(os.path.join(output_folder_path, "finaldata.csv")):
+    #     print("Finaldata.csv exist, loading...")
+    #     merged_df = pd.read_csv(
+    #         os.path.join(output_folder_path, "finaldata.csv")
+    #     )
+
     for file in files:
         input_file_name = os.path.join(os.getcwd(), input_folder_path, file)
 
@@ -48,7 +70,8 @@ def merge_multiple_dataframe() -> None:
     )
 
     # Open the file in write mode
-    with open("ingestedfiles.txt", "w", encoding="utf-8") as file:
+    print("logging ingested file metadata...")
+    with open("ingestedfiles.txt", "a+", encoding="utf-8") as file:
         # Iterate over each item in the list
         for records in allrecords:
             # Convert the item to a string and write it to the file
@@ -59,7 +82,7 @@ def merge_multiple_dataframe() -> None:
 
 def main() -> None:
     """Main"""
-    # merge_multiple_dataframe()
+    merge_multiple_dataframe()
 
 
 if __name__ == "__main__":

@@ -17,16 +17,18 @@ dataset_csv_path = os.path.join(config["output_folder_path"])
 test_data_path = os.path.join(config["test_data_path"])
 
 
+test_df = pd.read_csv(os.path.join(test_data_path, "testdata.csv"))
+
+X, _ = prepare_data(test_df)
+
+
 # Function to get model predictions
-def model_predictions():
+def model_predictions(X: pd.DataFrame):
     # read the deployed model and a test dataset, calculate predictions
     with open(
         os.path.join(config["prod_deployment_path"], "trainedmodel.pkl"), "rb"
     ) as f:
         model = pickle.load(f)
-
-    test_df = pd.read_csv(os.path.join(test_data_path, "testdata.csv"))
-    X, y = prepare_data(test_df)
 
     y_pred = model.predict(X)
 
@@ -54,6 +56,19 @@ def dataframe_summary():
     return summary_df
 
 
+# Function to get summary statistics
+def dataframe_na():
+    # calculate summary statistics here
+
+    df = pd.read_csv(os.path.join(dataset_csv_path, "finaldata.csv"))
+
+    print(df.isnull().mean().values.tolist())
+
+    # return value should be a list containing all summary statistics
+
+    return df.isnull().mean().values.tolist()
+
+
 # Function to get timings
 def execution_time():
     # calculate timing of training.py and ingestion.py
@@ -78,12 +93,13 @@ def outdated_packages_list():
     outdated_pkgs = subprocess.check_output(["pip", "list", "--outdated"])
     print(outdated_pkgs)
 
-    with open("outdated_pkgs.txt", "wb") as file:
+    with open("outdated_pkgs2.txt", "wb") as file:
         file.write(outdated_pkgs)
 
 
 if __name__ == "__main__":
-    model_predictions()
+    model_predictions(X)
     dataframe_summary()
+    dataframe_na()
     execution_time()
     outdated_packages_list()

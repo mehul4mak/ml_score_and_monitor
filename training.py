@@ -69,6 +69,7 @@ def train_model(X, y):
     model.fit(X, y)
 
     # write the trained model to your workspace in a file called trainedmodel.pkl
+    os.makedirs(model_path, exist_ok=True)
     with open(os.path.join(model_path, "trainedmodel.pkl"), "wb") as file:
         pickle.dump(model, file)
 
